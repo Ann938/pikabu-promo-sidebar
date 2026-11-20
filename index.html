@@ -32,27 +32,41 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .side>img{width:304px;height:auto}
 
 /* ---------- блок промокодов ---------- */
-.promo{background:var(--clear);border:1px solid var(--stroke);border-radius:16px;padding:16px 24px;display:flex;flex-direction:column;gap:12px;overflow:hidden;position:relative}
+.promo{background:var(--clear);box-shadow:inset 0 0 0 1px var(--stroke);border-radius:16px;padding:16px 24px;display:flex;flex-direction:column;gap:12px;overflow:hidden;position:relative}
 .promo__hd{display:flex;align-items:center;gap:8px}
 .promo__hd img{width:32px;height:32px}
 .promo__hd b{font-weight:600;font-size:16px;line-height:24px}
-.stage{position:relative;width:256px;height:164px;touch-action:pan-y;user-select:none}
+.stage{position:relative;width:256px;height:166px;touch-action:pan-y;user-select:none}
 
-/* Заголовок купона — максимум 4 строки. Сцена (stage) всегда одной высоты, поэтому
-   блок и контент под ним не двигаются ни в одном варианте. Меняется только поведение
-   самой карточки купона — см. переключатель внизу. */
-.cp{position:absolute;left:0;top:50%;width:150px;height:158px;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px;border-radius:14px;
-  background:var(--clear);border:1px solid var(--stroke);text-align:center;cursor:pointer;
-  transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s,background-color .4s,border-color .4s;will-change:transform,opacity}
-.cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none}
+/* Купон по макету 24:21024 (компонент coupon 48:4734):
+   активный 160×160, padding 16, gap 8, radius 12, фон #FCFDFF + shadowMain, текст 12/16 Medium #45474D;
+   лого + заголовок центрируются группой, заголовок максимум 4 строки — карточка всегда 160, ничего не прыгает.
+   Соседние — квадрат 126×126 (это 160 × 0.7875), прозрачность 56 %, обводка #EBEDF2, текст #757880.
+   Ховер на активном (вариант condition=hover): 160 → 166, ease-out 0.3 с. */
+.cp{position:absolute;left:0;top:50%;width:160px;height:160px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;border-radius:12px;
+  background:var(--clear);box-shadow:inset 0 0 0 1px var(--stroke);text-align:center;cursor:pointer;
+  transform:translate(var(--x), -50%) scale(calc(var(--s) * var(--h, 1)));
+  transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s;will-change:transform,opacity}
+.cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none;transition:border-radius .4s}
 .cp__logo img{width:100%;height:100%;object-fit:contain}
-/* лого + заголовок центрируются вместе как группа; карточка всегда 158px (под 4 строки) */
-.cp{justify-content:center}
 .cp__tw{width:100%;display:flex;justify-content:center}
-.cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
-.cp.is-active{background:#fff;border-color:transparent;box-shadow:var(--shadow);cursor:default}
-.cp.is-active .cp__t{color:var(--text)}
+.cp__t{font-weight:500;font-size:12px;line-height:16px;color:#757880;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
+.cp:not(.is-active) .cp__logo{border-radius:15px}
+.cp.is-active{box-shadow:var(--shadow);cursor:pointer}
+.cp.is-active .cp__t{color:#45474d}
+.cp.is-active:hover{--h:1.0375;transition:transform .3s ease-out,opacity .6s var(--ease),box-shadow .4s}
 .cp:not(.is-active):hover{opacity:.75!important}
+
+/* вариант Б: стрелки в шапке, счётчик не помещается рядом с заголовком — убран */
+.promo__hd b{flex:1}
+.promo[data-l="b"] #count{display:none}
+.promo__hd .nav{gap:4px}
+
+.vbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:4px;background:#fff;border-radius:16px;box-shadow:0 0 1px rgba(41,42,46,.2),0 8px 28px rgba(41,42,46,.14)}
+.vbar button{padding:6px 14px;border-radius:12px;font-weight:500;font-size:13px;line-height:16px;color:var(--text2);text-align:left;transition:.2s}
+.vbar button:hover{background:var(--soft)}
+.vbar button[aria-pressed="true"]{background:var(--green);color:#fff}
+.vbar small{display:block;font-size:11px;line-height:14px;opacity:.75;font-weight:400}
 
 
 .nav{display:flex;align-items:center;gap:4px}
@@ -87,18 +101,22 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     <section class="promo" id="promo" aria-roledescription="карусель" aria-label="Пикабу Промокоды">
       <div class="promo__hd"><img src="img/logo-promo.svg" alt=""><b>Пикабу Промокоды</b></div>
       <div class="stage" id="stage"></div>
-      <div class="nav">
+      <div id="action"></div>
+      <div class="nav" id="nav">
         <span id="count" aria-live="polite">1 из 9</span>
         <button type="button" id="prev" aria-label="Предыдущий купон"><img src="img/ar-l.svg" alt=""></button>
         <button type="button" id="next" aria-label="Следующий купон"><img src="img/ar-r.svg" alt=""></button>
       </div>
-      <div id="action"></div>
     </section>
 
     <img src="img/sb-special.png" alt="Сервисы Пикабу">
   </aside>
 </div>
 
+<nav class="vbar" aria-label="Варианты блока">
+  <button type="button" data-l="a">А. Кнопка под купоном<small>стрелки внизу — как в макете</small></button>
+  <button type="button" data-l="b">Б. Стрелки в шапке<small>кнопка под купоном, блок ниже</small></button>
+</nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -125,22 +143,16 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__tw"><span class="cp__t">${t}</span></span></div>`).join("");
   const cards = [...stage.children];
 
-  // позиция карточки по смещению от активной: [x, y, rotate, scale, opacity, z]
-  const POS = {
-    cover(o) {                      // макет 24:21024: активная 150px по центру, соседи 83% и 50%
-      if (o === 0) return [53, 0, 0, 1, 1, 5];
-      if (o === -1) return [-21, 0, 0, .83, .5, 3];
-      if (o === 1) return [130, 0, 0, .83, .5, 3];
-      return o < 0 ? [-120, 0, 0, .66, 0, 1] : [230, 0, 0, .66, 0, 1];
-    },
-  };
+  // позиция по смещению от активной: [x, scale, opacity, z]. Сцена 256: активная 160 по центру (x 48),
+  // соседи 126×126 прижаты к краям сцены (центр 63 и 193 → x −17 и 113).
+  const POS = (o) => o === 0 ? [48, 1, 1, 5] : o === -1 ? [-17, .7875, .56, 3] : o === 1 ? [113, .7875, .56, 3]
+    : o < 0 ? [-110, .6, 0, 1] : [206, .6, 0, 1];
   const off = (i) => { let o = (i - cur) % N; if (o > N / 2) o -= N; if (o < -N / 2) o += N; return o; };
 
   function render() {
     cards.forEach((el, i) => {
-      const [x, y, r, s, op, z] = POS.cover(off(i));
-      const ty = `calc(-50% + ${y}px)`;
-      el.style.transform = `translate(${x}px, ${ty}) rotate(${r}deg) scale(${s})`;
+      const [x, s, op, z] = POS(off(i));
+      el.style.setProperty("--x", x + "px"); el.style.setProperty("--s", s);
       el.style.opacity = op; el.style.zIndex = z;
       el.classList.toggle("is-active", off(i) === 0);
       el.setAttribute("aria-hidden", op === 0);
@@ -168,13 +180,21 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 
   $("#prev").onclick = () => { stopAuto(); go(-1); };
   $("#next").onclick = () => { stopAuto(); go(1); };
-  stage.addEventListener("click", (e) => { const c = e.target.closest(".cp"); if (!c) return; const o = off(+c.dataset.i); if (o) { stopAuto(); go(o); } });
+  stage.addEventListener("click", (e) => { const c = e.target.closest(".cp"); if (!c) return; const o = off(+c.dataset.i); stopAuto(); if (o) go(o); else if (!action.querySelector(".code")) reveal(); });
   promo.addEventListener("mouseenter", () => { paused = true; clearTimeout(timer); });
   promo.addEventListener("mouseleave", () => { paused = false; schedule(); });
   // свайп
   let sx = null; stage.addEventListener("pointerdown", (e) => { sx = e.clientX; });
   stage.addEventListener("pointerup", (e) => { if (sx == null) return; const d = e.clientX - sx; sx = null; if (Math.abs(d) > 30) { stopAuto(); go(d < 0 ? 1 : -1); } });
 
+  // варианты: А — как в макете (кнопка, под ней счётчик со стрелками), Б — стрелки в шапке
+  const nav = $("#nav"), hd = $(".promo__hd"), btns = document.querySelectorAll(".vbar button");
+  function setL(l) {
+    promo.dataset.l = l; (l === "b" ? hd : promo).appendChild(nav);
+    btns.forEach((b) => b.setAttribute("aria-pressed", b.dataset.l === l)); history.replaceState(null, "", "#" + l);
+  }
+  btns.forEach((b) => b.onclick = () => setL(b.dataset.l));
+  setL(location.hash === "#b" ? "b" : "a");
   render(); schedule();
 })();
 </script>
