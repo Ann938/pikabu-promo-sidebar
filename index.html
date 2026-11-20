@@ -60,7 +60,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .nav button{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;transition:background-color .2s}
 .nav button:hover{background:var(--soft)}
 .nav button img{width:16px;height:16px}
-.progress{position:absolute;left:0;bottom:0;height:2px;background:var(--green);width:0;opacity:.5}
 
 .cta{height:32px;border-radius:12px;background:var(--green);color:#fcfdff;font-weight:500;font-size:13px;line-height:16px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
 .cta:hover{background:var(--green-h)}
@@ -94,7 +93,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
         <button type="button" id="next" aria-label="Следующий купон"><img src="img/ar-r.svg" alt=""></button>
       </div>
       <div id="action"></div>
-      <i class="progress" id="progress"></i>
     </section>
 
     <img src="img/sb-special.png" alt="Сервисы Пикабу">
@@ -119,9 +117,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   ];
   const N = C.length;
   const $ = (s) => document.querySelector(s);
-  const promo = $("#promo"), stage = $("#stage"), count = $("#count"), action = $("#action"), bar = $("#progress");
+  const promo = $("#promo"), stage = $("#stage"), count = $("#count"), action = $("#action");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let cur = 0, timer = null, paused = false, pauseUntil = 0;
+  let cur = 0, timer = null, paused = false;
 
   stage.innerHTML = C.map(([l, t], i) =>
     `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__tw"><span class="cp__t">${t}</span></span></div>`).join("");
@@ -151,40 +149,33 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     action.innerHTML = `<button type="button" class="cta" id="show" style="width:100%">Показать промокод</button>`;
     $("#show").onclick = reveal;
   }
-  function go(d) { cur = (cur + d + N) % N; render(); restart(); }
+  function go(d) { cur = (cur + d + N) % N; render(); }
   function reveal() {
     const [, , code] = C[cur];
     action.innerHTML = `<div class="code"><b>${code}</b><button type="button" id="copy">Скопировать</button></div>`;
     $("#copy").onclick = () => { navigator.clipboard?.writeText(code).catch(() => {}); toast("Промокод скопирован"); };
     toast("Магазин открылся бы в новой вкладке по партнёрской ссылке — это демо");
-    hold(12000);
+    stopAuto();
   }
   let tt; function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("on"), 2600); }
 
-  // автопрокрутка: 3.5 с, пауза при наведении и после действий пользователя
-  const STEP = 3500;
-  function restart() {
-    clearTimeout(timer); if (reduce) return;
-    bar.style.transition = "none"; bar.style.width = "0";
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (paused || Date.now() < pauseUntil) return;
-      bar.style.transition = `width ${STEP}ms linear`; bar.style.width = "100%";
-    }));
-    timer = setTimeout(tick, STEP);
-  }
-  function tick() { if (paused || Date.now() < pauseUntil || action.querySelector(".code")) { timer = setTimeout(tick, 500); bar.style.transition = "none"; bar.style.width = "0"; return; } go(1); }
-  function hold(ms) { pauseUntil = Date.now() + ms; }
+  // Автолистание: только 2 раза по 4 с после загрузки, дальше не листаем — чтобы не раздражать.
+  // Наведение ставит паузу (отсчёт начнётся заново), любое действие пользователя выключает автолистание совсем.
+  const STEP = 4000;
+  let autoLeft = reduce ? 0 : 2;
+  function schedule() { clearTimeout(timer); if (autoLeft > 0 && !paused) timer = setTimeout(() => { autoLeft--; go(1); schedule(); }, STEP); }
+  function stopAuto() { autoLeft = 0; clearTimeout(timer); }
 
-  $("#prev").onclick = () => { hold(6000); go(-1); };
-  $("#next").onclick = () => { hold(6000); go(1); };
-  stage.addEventListener("click", (e) => { const c = e.target.closest(".cp"); if (!c) return; const o = off(+c.dataset.i); if (o) { hold(6000); go(o); } });
-  promo.addEventListener("mouseenter", () => { paused = true; bar.style.transition = "none"; bar.style.width = "0"; });
-  promo.addEventListener("mouseleave", () => { paused = false; restart(); });
+  $("#prev").onclick = () => { stopAuto(); go(-1); };
+  $("#next").onclick = () => { stopAuto(); go(1); };
+  stage.addEventListener("click", (e) => { const c = e.target.closest(".cp"); if (!c) return; const o = off(+c.dataset.i); if (o) { stopAuto(); go(o); } });
+  promo.addEventListener("mouseenter", () => { paused = true; clearTimeout(timer); });
+  promo.addEventListener("mouseleave", () => { paused = false; schedule(); });
   // свайп
   let sx = null; stage.addEventListener("pointerdown", (e) => { sx = e.clientX; });
-  stage.addEventListener("pointerup", (e) => { if (sx == null) return; const d = e.clientX - sx; sx = null; if (Math.abs(d) > 30) { hold(6000); go(d < 0 ? 1 : -1); } });
+  stage.addEventListener("pointerup", (e) => { if (sx == null) return; const d = e.clientX - sx; sx = null; if (Math.abs(d) > 30) { stopAuto(); go(d < 0 ? 1 : -1); } });
 
-  render(); restart();
+  render(); schedule();
 })();
 </script>
 </body>
