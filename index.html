@@ -37,25 +37,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .promo__hd img{width:32px;height:32px}
 .promo__hd b{font-weight:600;font-size:16px;line-height:24px}
 .stage{position:relative;width:256px;height:158px;touch-action:pan-y;user-select:none}
-.promo[data-v="deck"] .stage{height:108px}
-.promo[data-v="scatter"] .stage{height:172px}
 
-.cp{position:absolute;left:0;top:50%;width:150px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;border-radius:14px;
+/* Высота карточки фиксированная — под 3 строки заголовка. Купон в 1, 2 или 3 строки
+   занимает ту же карточку: текст центрируется в своей зоне, логотип стоит на месте,
+   поэтому при смене купона не прыгают ни карточка, ни блок, ни контент под ним. */
+.cp{position:absolute;left:0;top:50%;width:150px;height:144px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;border-radius:14px;
   background:var(--clear);border:1px solid var(--stroke);text-align:center;cursor:pointer;
   transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s,background-color .4s,border-color .4s;will-change:transform,opacity}
 .cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none}
 .cp__logo img{width:100%;height:100%;object-fit:contain}
-.cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
+.cp__tw{height:48px;width:100%;display:flex;align-items:center;justify-content:center}
+.cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
 .cp.is-active{background:#fff;border-color:transparent;box-shadow:var(--shadow);cursor:default}
 .cp.is-active .cp__t{color:var(--text)}
 .cp:not(.is-active):hover{opacity:.75!important}
-
-/* колода — горизонтальная карточка */
-.promo[data-v="deck"] .cp{width:256px;height:80px;top:0;flex-direction:row;align-items:center;gap:12px;text-align:left;padding:12px 14px;transform-origin:50% 0}
-.promo[data-v="deck"] .cp__logo{width:52px;height:52px}
-.promo[data-v="deck"] .cp>*{transition:opacity .4s}
-.promo[data-v="deck"] .cp:not(.is-active)>*{opacity:0}
-.promo[data-v="deck"] .cp__t{font-size:13px;line-height:18px;-webkit-line-clamp:3}
 
 .nav{display:flex;align-items:center;gap:4px}
 .nav span{flex:1;font-size:12px;line-height:16px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -75,13 +70,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,20px);background:var(--text);color:#fcfdff;font-size:13px;line-height:18px;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s var(--ease);z-index:40}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
-/* ---------- переключатель вариантов ---------- */
-.vbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:4px;background:#fff;border-radius:16px;box-shadow:0 0 1px rgba(41,42,46,.2),0 8px 28px rgba(41,42,46,.14)}
-.vbar button{height:40px;padding:0 16px;border-radius:12px;font-weight:500;font-size:14px;color:var(--text2);transition:.2s}
-.vbar button:hover{background:var(--soft)}
-.vbar button[aria-pressed="true"]{background:var(--green);color:#fff}
-.vbar small{display:block;font-size:11px;line-height:12px;opacity:.75;font-weight:400}
-
 @media (prefers-reduced-motion:reduce){.cp,.toast{transition:none}.code{animation:none}}
 </style>
 </head>
@@ -94,7 +82,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <aside class="side">
     <img src="img/sb-user.png" alt="Блок пользователя">
 
-    <section class="promo" id="promo" data-v="cover" aria-roledescription="карусель" aria-label="Пикабу Промокоды">
+    <section class="promo" id="promo" aria-roledescription="карусель" aria-label="Пикабу Промокоды">
       <div class="promo__hd"><img src="img/logo-promo.svg" alt=""><b>Пикабу Промокоды</b></div>
       <div class="stage" id="stage"></div>
       <div class="nav">
@@ -110,11 +98,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   </aside>
 </div>
 
-<nav class="vbar" aria-label="Варианты блока">
-  <button type="button" data-v="cover" aria-pressed="true">Coverflow<small>ваш макет</small></button>
-  <button type="button" data-v="deck" aria-pressed="false">Колода<small>светлая</small></button>
-  <button type="button" data-v="scatter" aria-pressed="false">Разброс<small>светлый</small></button>
-</nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -125,10 +108,10 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
     ["pyaterochka", "Минус 500 рублей на первый заказ от 1000 рублей в приложении", "PYAT500"],
     ["otello", "Выгода до 3000 рублей на отели для новых пользователей", "OTELLO3K"],
     ["sunlight", "Подвеска в подарок по купону в магазинах сети", "SUNGIFT"],
-    ["rivgosh", "Скидка 50% на второй аромат в корзине", "RG50"],
+    ["rivgosh", "Скидка 50% на второй аромат", "RG50"],
     ["citilink", "Выгода до 32 000 ₽ на ноутбуки и смартфоны", "CITI32"],
-    ["litres", "Скидка 20% на электронные и аудиокниги", "LIT20"],
-    ["lemana", "До 10 000 ₽ скидки на товары для ремонта", "LEMANA10"],
+    ["litres", "−20% на аудиокниги", "LIT20"],
+    ["lemana", "До 10 000 ₽ скидки на всё для ремонта, сада и дачи при заказе онлайн", "LEMANA10"],
     ["fitservice", "Скидка 32% на ТО и замену масла", "FIT32"],
   ];
   const N = C.length;
@@ -136,11 +119,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   const promo = $("#promo"), stage = $("#stage"), count = $("#count"), action = $("#action"), bar = $("#progress");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let cur = 0, timer = null, paused = false, pauseUntil = 0;
-  let V = (location.hash.slice(1) || "cover");
-  if (!["cover", "deck", "scatter"].includes(V)) V = "cover";
 
   stage.innerHTML = C.map(([l, t], i) =>
-    `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__t">${t}</span></div>`).join("");
+    `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__tw"><span class="cp__t">${t}</span></span></div>`).join("");
   const cards = [...stage.children];
 
   // позиция карточки по смещению от активной: [x, y, rotate, scale, opacity, z]
@@ -151,30 +132,13 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
       if (o === 1) return [130, 0, 0, .83, .5, 3];
       return o < 0 ? [-120, 0, 0, .66, 0, 1] : [230, 0, 0, .66, 0, 1];
     },
-    deck(o) {                       // колода: сзади края следующих, ушедшая улетает влево
-      if (o === 0) return [0, 0, 0, 1, 1, 6];
-      if (o === 1) return [0, 13, 0, .94, .75, 5];
-      if (o === 2) return [0, 26, 0, .88, .45, 4];
-      if (o === -1) return [-300, -6, -14, .96, 0, 7];
-      return [0, 26, 0, .88, 0, 1];
-    },
-    scatter(o) {                    // разброс: главная ровная, остальные повёрнуты и приглушены
-      if (o === 0) return [53, 6, 0, 1, 1, 6];
-      if (o === 1) return [-16, -6, -9, .84, .5, 3];
-      if (o === 2) return [124, 14, 8, .84, .5, 4];
-      if (o === 3) return [40, 22, 4, .8, 0, 1];
-      if (o === -1) return [70, -150, 12, .9, 0, 7];
-      return [53, 20, 3, .8, 0, 1];
-    },
   };
   const off = (i) => { let o = (i - cur) % N; if (o > N / 2) o -= N; if (o < -N / 2) o += N; return o; };
 
   function render() {
-    promo.dataset.v = V;
     cards.forEach((el, i) => {
-      const [x, y, r, s, op, z] = POS[V](off(i));
-      const ty = V === "deck" ? `${y}px` : `calc(-50% + ${y}px)`;
-      el.style.transform = `translate(${x}px, ${ty}) rotate(${r}deg) scale(${s})`;
+      const [x, y, r, s, op, z] = POS.cover(off(i));
+      el.style.transform = `translate(${x}px, calc(-50% + ${y}px)) rotate(${r}deg) scale(${s})`;
       el.style.opacity = op; el.style.zIndex = z;
       el.classList.toggle("is-active", off(i) === 0);
       el.setAttribute("aria-hidden", op === 0);
@@ -216,13 +180,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   let sx = null; stage.addEventListener("pointerdown", (e) => { sx = e.clientX; });
   stage.addEventListener("pointerup", (e) => { if (sx == null) return; const d = e.clientX - sx; sx = null; if (Math.abs(d) > 30) { hold(6000); go(d < 0 ? 1 : -1); } });
 
-  // переключатель вариантов
-  const btns = document.querySelectorAll(".vbar button");
-  function setV(v) { V = v; btns.forEach((b) => b.setAttribute("aria-pressed", b.dataset.v === v)); history.replaceState(null, "", "#" + v); render(); restart(); }
-  btns.forEach((b) => b.onclick = () => setV(b.dataset.v));
-  window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (POS[v]) setV(v); });
-
-  setV(V);
+  render(); restart();
 })();
 </script>
 </body>
