@@ -58,9 +58,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 /* 3 — фикс, логотип + текст вместе по центру карточки */
 .promo[data-v="fix-group"] .cp{justify-content:center}
 .promo[data-v="fix-group"] .cp__tw{height:auto}
-/* 4–6 — карточка по высоте контента, высота анимируется (задаётся из JS) */
-.promo[data-v^="grow"] .cp__tw{height:auto}
-.promo[data-v="grow-down"] .cp{top:3px;transform-origin:50% 0}
+/* 4 — карточка по высоте контента, высота анимируется (задаётся из JS) */
+.promo[data-v="grow-center"] .cp__tw{height:auto}
 
 .vbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:4px;background:#fff;border-radius:16px;box-shadow:0 0 1px rgba(41,42,46,.2),0 8px 28px rgba(41,42,46,.14)}
 .vbar button{padding:6px 14px;border-radius:12px;font-weight:500;font-size:13px;line-height:16px;color:var(--text2);text-align:left;transition:.2s}
@@ -119,8 +118,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   <button type="button" data-v="fix-top">2. Фикс<small>текст под логотипом</small></button>
   <button type="button" data-v="fix-group">3. Фикс<small>лого + текст по центру</small></button>
   <button type="button" data-v="grow-center">4. Тянется<small>от центра</small></button>
-  <button type="button" data-v="grow-down">5. Тянется<small>вниз, лого на месте</small></button>
-  <button type="button" data-v="grow-all">6. Тянется<small>вместе с соседями</small></button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -143,7 +140,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   const promo = $("#promo"), stage = $("#stage"), count = $("#count"), action = $("#action"), bar = $("#progress");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let cur = 0, timer = null, paused = false, pauseUntil = 0;
-  const VS = ["fix-center", "fix-top", "fix-group", "grow-center", "grow-down", "grow-all"];
+  const VS = ["fix-center", "fix-top", "fix-group", "grow-center"];
   let V = VS.includes(location.hash.slice(1)) ? location.hash.slice(1) : VS[0];
 
   stage.innerHTML = C.map(([l, t], i) =>
@@ -165,11 +162,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   const natural = (el) => 94 + el.querySelector(".cp__t").offsetHeight;
   function render() {
     promo.dataset.v = V;
-    const grow = V.startsWith("grow"), activeH = natural(cards[cur]);
+    const grow = V === "grow-center";
     cards.forEach((el, i) => {
       const [x, y, r, s, op, z] = POS.cover(off(i));
-      el.style.height = !grow ? "" : (V === "grow-all" ? activeH : natural(el)) + "px";
-      const ty = V === "grow-down" ? `${y}px` : `calc(-50% + ${y}px)`;
+      el.style.height = !grow ? "" : natural(el) + "px";
+      const ty = `calc(-50% + ${y}px)`;
       el.style.transform = `translate(${x}px, ${ty}) rotate(${r}deg) scale(${s})`;
       el.style.opacity = op; el.style.zIndex = z;
       el.classList.toggle("is-active", off(i) === 0);
