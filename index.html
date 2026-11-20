@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<link rel="icon" href="img/logo-promo.svg">
+<meta charset="utf-8">
+<meta name="viewport" content="width=1360">
+<title>Пикабу Промокоды — блок в сайдбаре</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f8fc; --clear:#fcfdff; --stroke:#ebedf2; --text:#292a2e; --text2:#5c5f66; --muted:#757880;
+  --green:#89cc52; --green-h:#7bbd45; --green2:#78b247; --soft:#f2f3f7;
+  --shadow:0 0 1px rgba(41,42,46,.12),0 4px 16px rgba(41,42,46,.08);
+  --ease:cubic-bezier(.22,.8,.24,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:Roboto,system-ui,sans-serif;color:var(--text);min-width:1360px;-webkit-font-smoothing:antialiased}
+img{display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ---------- страница (макет 24:20952) ---------- */
+.hd{position:sticky;top:0;z-index:20;background:var(--clear);box-shadow:0 0 1px rgba(41,42,46,.12),0 2px 10px rgba(41,42,46,.05)}
+.hd img{width:1360px;height:64px;margin:0 auto}
+.page{width:1360px;margin:0 auto;position:relative;padding-top:16px;padding-bottom:120px}
+.feed{position:absolute;left:90px;top:16px;width:780px}
+.feed img{width:780px;height:auto}
+.feed::after{content:"";position:absolute;left:0;right:0;bottom:0;height:160px;background:linear-gradient(rgba(247,248,252,0),var(--bg))}
+.side{margin-left:886px;width:304px;display:flex;flex-direction:column;gap:16px}
+.side>img{width:304px;height:auto}
+
+/* ---------- блок промокодов ---------- */
+.promo{background:var(--clear);border:1px solid var(--stroke);border-radius:16px;padding:16px 24px;display:flex;flex-direction:column;gap:12px;overflow:hidden;position:relative}
+.promo__hd{display:flex;align-items:center;gap:8px}
+.promo__hd img{width:32px;height:32px}
+.promo__hd b{font-weight:600;font-size:16px;line-height:24px}
+.stage{position:relative;width:256px;height:158px;touch-action:pan-y;user-select:none}
+.promo[data-v="deck"] .stage{height:108px}
+.promo[data-v="scatter"] .stage{height:172px}
+
+.cp{position:absolute;left:0;top:50%;width:150px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;border-radius:14px;
+  background:var(--clear);border:1px solid var(--stroke);text-align:center;cursor:pointer;
+  transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s,background-color .4s,border-color .4s;will-change:transform,opacity}
+.cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none}
+.cp__logo img{width:100%;height:100%;object-fit:contain}
+.cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
+.cp.is-active{background:#fff;border-color:transparent;box-shadow:var(--shadow);cursor:default}
+.cp.is-active .cp__t{color:var(--text)}
+.cp:not(.is-active):hover{opacity:.75!important}
+
+/* колода — горизонтальная карточка */
+.promo[data-v="deck"] .cp{width:256px;height:80px;top:0;flex-direction:row;align-items:center;gap:12px;text-align:left;padding:12px 14px;transform-origin:50% 0}
+.promo[data-v="deck"] .cp__logo{width:52px;height:52px}
+.promo[data-v="deck"] .cp>*{transition:opacity .4s}
+.promo[data-v="deck"] .cp:not(.is-active)>*{opacity:0}
+.promo[data-v="deck"] .cp__t{font-size:13px;line-height:18px;-webkit-line-clamp:3}
+
+.nav{display:flex;align-items:center;gap:4px}
+.nav span{flex:1;font-size:12px;line-height:16px;color:var(--muted);font-variant-numeric:tabular-nums}
+.nav button{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;transition:background-color .2s}
+.nav button:hover{background:var(--soft)}
+.nav button img{width:16px;height:16px}
+.progress{position:absolute;left:0;bottom:0;height:2px;background:var(--green);width:0;opacity:.5}
+
+.cta{height:32px;border-radius:12px;background:var(--green);color:#fcfdff;font-weight:500;font-size:13px;line-height:16px;display:flex;align-items:center;justify-content:center;transition:background-color .2s}
+.cta:hover{background:var(--green-h)}
+.code{height:32px;border-radius:12px;border:1px dashed var(--green2);background:#f4faef;display:flex;align-items:center;gap:8px;padding:0 8px 0 14px;animation:pop .35s var(--ease)}
+.code b{flex:1;font-weight:600;font-size:14px;letter-spacing:.06em}
+.code button{font-weight:500;font-size:13px;color:var(--green2);padding:4px 6px;border-radius:8px}
+.code button:hover{background:#e8f5dc}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+
+.toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,20px);background:var(--text);color:#fcfdff;font-size:13px;line-height:18px;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.3s var(--ease);z-index:40}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- переключатель вариантов ---------- */
+.vbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:4px;background:#fff;border-radius:16px;box-shadow:0 0 1px rgba(41,42,46,.2),0 8px 28px rgba(41,42,46,.14)}
+.vbar button{height:40px;padding:0 16px;border-radius:12px;font-weight:500;font-size:14px;color:var(--text2);transition:.2s}
+.vbar button:hover{background:var(--soft)}
+.vbar button[aria-pressed="true"]{background:var(--green);color:#fff}
+.vbar small{display:block;font-size:11px;line-height:12px;opacity:.75;font-weight:400}
+
+@media (prefers-reduced-motion:reduce){.cp,.toast{transition:none}.code{animation:none}}
+</style>
+</head>
+<body>
+<header class="hd"><img src="img/header.png" alt="Пикабу — шапка сайта"></header>
+
+<div class="page">
+  <div class="feed"><img src="img/content.jpg" alt="Лента постов"></div>
+
+  <aside class="side">
+    <img src="img/sb-user.png" alt="Блок пользователя">
+
+    <section class="promo" id="promo" data-v="cover" aria-roledescription="карусель" aria-label="Пикабу Промокоды">
+      <div class="promo__hd"><img src="img/logo-promo.svg" alt=""><b>Пикабу Промокоды</b></div>
+      <div class="stage" id="stage"></div>
+      <div class="nav">
+        <span id="count" aria-live="polite">1 из 9</span>
+        <button type="button" id="prev" aria-label="Предыдущий купон"><img src="img/ar-l.svg" alt=""></button>
+        <button type="button" id="next" aria-label="Следующий купон"><img src="img/ar-r.svg" alt=""></button>
+      </div>
+      <div id="action"></div>
+      <i class="progress" id="progress"></i>
+    </section>
+
+    <img src="img/sb-special.png" alt="Сервисы Пикабу">
+  </aside>
+</div>
+
+<nav class="vbar" aria-label="Варианты блока">
+  <button type="button" data-v="cover" aria-pressed="true">Coverflow<small>ваш макет</small></button>
+  <button type="button" data-v="deck" aria-pressed="false">Колода<small>светлая</small></button>
+  <button type="button" data-v="scatter" aria-pressed="false">Разброс<small>светлый</small></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  // Купоны из фида: только логотип + заголовок (демо-данные)
+  const C = [
+    ["aliexpress", "Черная пятница со скидками до 90% на все категории товаров", "ALI90"],
+    ["pyaterochka", "Минус 500 рублей на первый заказ от 1000 рублей в приложении", "PYAT500"],
+    ["otello", "Выгода до 3000 рублей на отели для новых пользователей", "OTELLO3K"],
+    ["sunlight", "Подвеска в подарок по купону в магазинах сети", "SUNGIFT"],
+    ["rivgosh", "Скидка 50% на второй аромат в корзине", "RG50"],
+    ["citilink", "Выгода до 32 000 ₽ на ноутбуки и смартфоны", "CITI32"],
+    ["litres", "Скидка 20% на электронные и аудиокниги", "LIT20"],
+    ["lemana", "До 10 000 ₽ скидки на товары для ремонта", "LEMANA10"],
+    ["fitservice", "Скидка 32% на ТО и замену масла", "FIT32"],
+  ];
+  const N = C.length;
+  const $ = (s) => document.querySelector(s);
+  const promo = $("#promo"), stage = $("#stage"), count = $("#count"), action = $("#action"), bar = $("#progress");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let cur = 0, timer = null, paused = false, pauseUntil = 0;
+  let V = (location.hash.slice(1) || "cover");
+  if (!["cover", "deck", "scatter"].includes(V)) V = "cover";
+
+  stage.innerHTML = C.map(([l, t], i) =>
+    `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__t">${t}</span></div>`).join("");
+  const cards = [...stage.children];
+
+  // позиция карточки по смещению от активной: [x, y, rotate, scale, opacity, z]
+  const POS = {
+    cover(o) {                      // макет 24:21024: активная 150px по центру, соседи 83% и 50%
+      if (o === 0) return [53, 0, 0, 1, 1, 5];
+      if (o === -1) return [-21, 0, 0, .83, .5, 3];
+      if (o === 1) return [130, 0, 0, .83, .5, 3];
+      return o < 0 ? [-120, 0, 0, .66, 0, 1] : [230, 0, 0, .66, 0, 1];
+    },
+    deck(o) {                       // колода: сзади края следующих, ушедшая улетает влево
+      if (o === 0) return [0, 0, 0, 1, 1, 6];
+      if (o === 1) return [0, 13, 0, .94, .75, 5];
+      if (o === 2) return [0, 26, 0, .88, .45, 4];
+      if (o === -1) return [-300, -6, -14, .96, 0, 7];
+      return [0, 26, 0, .88, 0, 1];
+    },
+    scatter(o) {                    // разброс: главная ровная, остальные повёрнуты и приглушены
+      if (o === 0) return [53, 6, 0, 1, 1, 6];
+      if (o === 1) return [-16, -6, -9, .84, .5, 3];
+      if (o === 2) return [124, 14, 8, .84, .5, 4];
+      if (o === 3) return [40, 22, 4, .8, 0, 1];
+      if (o === -1) return [70, -150, 12, .9, 0, 7];
+      return [53, 20, 3, .8, 0, 1];
+    },
+  };
+  const off = (i) => { let o = (i - cur) % N; if (o > N / 2) o -= N; if (o < -N / 2) o += N; return o; };
+
+  function render() {
+    promo.dataset.v = V;
+    cards.forEach((el, i) => {
+      const [x, y, r, s, op, z] = POS[V](off(i));
+      const ty = V === "deck" ? `${y}px` : `calc(-50% + ${y}px)`;
+      el.style.transform = `translate(${x}px, ${ty}) rotate(${r}deg) scale(${s})`;
+      el.style.opacity = op; el.style.zIndex = z;
+      el.classList.toggle("is-active", off(i) === 0);
+      el.setAttribute("aria-hidden", op === 0);
+    });
+    count.textContent = `${cur + 1} из ${N}`;
+    action.innerHTML = `<button type="button" class="cta" id="show" style="width:100%">Показать промокод</button>`;
+    $("#show").onclick = reveal;
+  }
+  function go(d) { cur = (cur + d + N) % N; render(); restart(); }
+  function reveal() {
+    const [, , code] = C[cur];
+    action.innerHTML = `<div class="code"><b>${code}</b><button type="button" id="copy">Скопировать</button></div>`;
+    $("#copy").onclick = () => { navigator.clipboard?.writeText(code).catch(() => {}); toast("Промокод скопирован"); };
+    toast("Магазин открылся бы в новой вкладке по партнёрской ссылке — это демо");
+    hold(12000);
+  }
+  let tt; function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("on"), 2600); }
+
+  // автопрокрутка: 3.5 с, пауза при наведении и после действий пользователя
+  const STEP = 3500;
+  function restart() {
+    clearTimeout(timer); if (reduce) return;
+    bar.style.transition = "none"; bar.style.width = "0";
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (paused || Date.now() < pauseUntil) return;
+      bar.style.transition = `width ${STEP}ms linear`; bar.style.width = "100%";
+    }));
+    timer = setTimeout(tick, STEP);
+  }
+  function tick() { if (paused || Date.now() < pauseUntil || action.querySelector(".code")) { timer = setTimeout(tick, 500); bar.style.transition = "none"; bar.style.width = "0"; return; } go(1); }
+  function hold(ms) { pauseUntil = Date.now() + ms; }
+
+  $("#prev").onclick = () => { hold(6000); go(-1); };
+  $("#next").onclick = () => { hold(6000); go(1); };
+  stage.addEventListener("click", (e) => { const c = e.target.closest(".cp"); if (!c) return; const o = off(+c.dataset.i); if (o) { hold(6000); go(o); } });
+  promo.addEventListener("mouseenter", () => { paused = true; bar.style.transition = "none"; bar.style.width = "0"; });
+  promo.addEventListener("mouseleave", () => { paused = false; restart(); });
+  // свайп
+  let sx = null; stage.addEventListener("pointerdown", (e) => { sx = e.clientX; });
+  stage.addEventListener("pointerup", (e) => { if (sx == null) return; const d = e.clientX - sx; sx = null; if (Math.abs(d) > 30) { hold(6000); go(d < 0 ? 1 : -1); } });
+
+  // переключатель вариантов
+  const btns = document.querySelectorAll(".vbar button");
+  function setV(v) { V = v; btns.forEach((b) => b.setAttribute("aria-pressed", b.dataset.v === v)); history.replaceState(null, "", "#" + v); render(); restart(); }
+  btns.forEach((b) => b.onclick = () => setV(b.dataset.v));
+  window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (POS[v]) setV(v); });
+
+  setV(V);
+})();
+</script>
+</body>
+</html>
