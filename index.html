@@ -43,29 +43,17 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    самой карточки купона — см. переключатель внизу. */
 .cp{position:absolute;left:0;top:50%;width:150px;height:158px;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px;border-radius:14px;
   background:var(--clear);border:1px solid var(--stroke);text-align:center;cursor:pointer;
-  transition:transform .6s var(--ease),opacity .6s var(--ease),height .5s var(--ease),box-shadow .4s,background-color .4s,border-color .4s;will-change:transform,opacity}
+  transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s,background-color .4s,border-color .4s;will-change:transform,opacity}
 .cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none}
 .cp__logo img{width:100%;height:100%;object-fit:contain}
-.cp__tw{height:64px;width:100%;display:flex;align-items:center;justify-content:center}
+/* лого + заголовок центрируются вместе как группа; карточка всегда 158px (под 4 строки) */
+.cp{justify-content:center}
+.cp__tw{width:100%;display:flex;justify-content:center}
 .cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
 .cp.is-active{background:#fff;border-color:transparent;box-shadow:var(--shadow);cursor:default}
 .cp.is-active .cp__t{color:var(--text)}
 .cp:not(.is-active):hover{opacity:.75!important}
 
-/* 1 — фикс 158, текст по центру своей зоны в 4 строки (по умолчанию выше) */
-/* 2 — фикс, текст сразу под логотипом, пустое место снизу */
-.promo[data-v="fix-top"] .cp__tw{align-items:flex-start}
-/* 3 — фикс, логотип + текст вместе по центру карточки */
-.promo[data-v="fix-group"] .cp{justify-content:center}
-.promo[data-v="fix-group"] .cp__tw{height:auto}
-/* 4 — карточка по высоте контента, высота анимируется (задаётся из JS) */
-.promo[data-v="grow-center"] .cp__tw{height:auto}
-
-.vbar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:4px;background:#fff;border-radius:16px;box-shadow:0 0 1px rgba(41,42,46,.2),0 8px 28px rgba(41,42,46,.14)}
-.vbar button{padding:6px 14px;border-radius:12px;font-weight:500;font-size:13px;line-height:16px;color:var(--text2);text-align:left;transition:.2s}
-.vbar button:hover{background:var(--soft)}
-.vbar button[aria-pressed="true"]{background:var(--green);color:#fff}
-.vbar small{display:block;font-size:11px;line-height:14px;opacity:.75;font-weight:400}
 
 .nav{display:flex;align-items:center;gap:4px}
 .nav span{flex:1;font-size:12px;line-height:16px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -113,12 +101,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   </aside>
 </div>
 
-<nav class="vbar" aria-label="Варианты высоты купона">
-  <button type="button" data-v="fix-center">1. Фикс<small>текст по центру зоны</small></button>
-  <button type="button" data-v="fix-top">2. Фикс<small>текст под логотипом</small></button>
-  <button type="button" data-v="fix-group">3. Фикс<small>лого + текст по центру</small></button>
-  <button type="button" data-v="grow-center">4. Тянется<small>от центра</small></button>
-</nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -140,8 +122,6 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   const promo = $("#promo"), stage = $("#stage"), count = $("#count"), action = $("#action"), bar = $("#progress");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let cur = 0, timer = null, paused = false, pauseUntil = 0;
-  const VS = ["fix-center", "fix-top", "fix-group", "grow-center"];
-  let V = VS.includes(location.hash.slice(1)) ? location.hash.slice(1) : VS[0];
 
   stage.innerHTML = C.map(([l, t], i) =>
     `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__tw"><span class="cp__t">${t}</span></span></div>`).join("");
@@ -158,14 +138,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   };
   const off = (i) => { let o = (i - cur) % N; if (o > N / 2) o -= N; if (o < -N / 2) o += N; return o; };
 
-  // высота карточки по контенту: рамка 2 + поля 28 + логотип 56 + отступ 8 + текст (до 4 строк)
-  const natural = (el) => 94 + el.querySelector(".cp__t").offsetHeight;
   function render() {
-    promo.dataset.v = V;
-    const grow = V === "grow-center";
     cards.forEach((el, i) => {
       const [x, y, r, s, op, z] = POS.cover(off(i));
-      el.style.height = !grow ? "" : natural(el) + "px";
       const ty = `calc(-50% + ${y}px)`;
       el.style.transform = `translate(${x}px, ${ty}) rotate(${r}deg) scale(${s})`;
       el.style.opacity = op; el.style.zIndex = z;
@@ -209,11 +184,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   let sx = null; stage.addEventListener("pointerdown", (e) => { sx = e.clientX; });
   stage.addEventListener("pointerup", (e) => { if (sx == null) return; const d = e.clientX - sx; sx = null; if (Math.abs(d) > 30) { hold(6000); go(d < 0 ? 1 : -1); } });
 
-  const btns = document.querySelectorAll(".vbar button");
-  function setV(v) { V = v; btns.forEach((b) => b.setAttribute("aria-pressed", b.dataset.v === v)); history.replaceState(null, "", "#" + v); render(); restart(); }
-  btns.forEach((b) => b.onclick = () => setV(b.dataset.v));
-  setV(V);
-  document.fonts?.ready.then(render);
+  render(); restart();
 })();
 </script>
 </body>
