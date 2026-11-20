@@ -36,18 +36,18 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .promo__hd{display:flex;align-items:center;gap:8px}
 .promo__hd img{width:32px;height:32px}
 .promo__hd b{font-weight:600;font-size:16px;line-height:24px}
-.stage{position:relative;width:256px;height:158px;touch-action:pan-y;user-select:none}
+.stage{position:relative;width:256px;height:164px;touch-action:pan-y;user-select:none}
 
-/* Высота карточки фиксированная — под 3 строки заголовка. Купон в 1, 2 или 3 строки
+/* Высота карточки фиксированная — под 4 строки заголовка (максимум). Купон в 1, 2, 3 или 4 строки
    занимает ту же карточку: текст центрируется в своей зоне, логотип стоит на месте,
    поэтому при смене купона не прыгают ни карточка, ни блок, ни контент под ним. */
-.cp{position:absolute;left:0;top:50%;width:150px;height:144px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;border-radius:14px;
+.cp{position:absolute;left:0;top:50%;width:150px;height:160px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px;border-radius:14px;
   background:var(--clear);border:1px solid var(--stroke);text-align:center;cursor:pointer;
   transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s,background-color .4s,border-color .4s;will-change:transform,opacity}
 .cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none}
 .cp__logo img{width:100%;height:100%;object-fit:contain}
-.cp__tw{height:48px;width:100%;display:flex;align-items:center;justify-content:center}
-.cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
+.cp__tw{height:64px;width:100%;display:flex;align-items:center;justify-content:center}
+.cp__t{font-weight:500;font-size:12px;line-height:16px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s}
 .cp.is-active{background:#fff;border-color:transparent;box-shadow:var(--shadow);cursor:default}
 .cp.is-active .cp__t{color:var(--text)}
 .cp:not(.is-active):hover{opacity:.75!important}
@@ -105,14 +105,14 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   // Купоны из фида: только логотип + заголовок (демо-данные)
   const C = [
     ["aliexpress", "Черная пятница со скидками до 90% на все категории товаров", "ALI90"],
-    ["pyaterochka", "Минус 500 рублей на первый заказ от 1000 рублей в приложении", "PYAT500"],
-    ["otello", "Выгода до 3000 рублей на отели для новых пользователей", "OTELLO3K"],
-    ["sunlight", "Подвеска в подарок по купону в магазинах сети", "SUNGIFT"],
+    ["litres", "−20% на аудиокниги", "LIT20"],
     ["rivgosh", "Скидка 50% на второй аромат", "RG50"],
     ["citilink", "Выгода до 32 000 ₽ на ноутбуки и смартфоны", "CITI32"],
-    ["litres", "−20% на аудиокниги", "LIT20"],
-    ["lemana", "До 10 000 ₽ скидки на всё для ремонта, сада и дачи при заказе онлайн", "LEMANA10"],
+    ["lemana", "До 10 000 ₽ скидки на всё для ремонта, сада и дачи при заказе на сайте или в приложении", "LEMANA10"],
     ["fitservice", "Скидка 32% на ТО и замену масла", "FIT32"],
+    ["pyaterochka", "Минус 500 рублей на первый заказ от 1000 рублей в приложении", "PYAT500"],
+    ["sunlight", "Подвеска в подарок по купону в магазинах сети", "SUNGIFT"],
+    ["otello", "Выгода до 3000 рублей на отели для новых пользователей", "OTELLO3K"],
   ];
   const N = C.length;
   const $ = (s) => document.querySelector(s);
