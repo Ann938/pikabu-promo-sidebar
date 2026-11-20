@@ -45,20 +45,29 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
    gap 4, текст 10/16 #757880, прижато к верху. Внутри карточки размеры заданы в «160-х» единицах (÷0.7875),
    чтобы после масштаба получились ровно макетные. Сцена 180 — всегда фиксированной высоты. */
 /* Ховер на активном (вариант condition=hover): 160 → 166, ease-out 0.3 с. */
-.cp{position:absolute;left:0;top:50%;width:160px;height:160px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;border-radius:12px;
+/* Без скачков: внутри карточки две готовые раскладки — «активная» и «соседняя». При смене купона
+   карточка только двигается и масштабируется (transform), а раскладки плавно меняются прозрачностью.
+   Размеры шрифтов и отступов не анимируются, поэтому текст не перестраивается и не съезжает. */
+.cp{position:absolute;left:0;top:50%;width:160px;height:160px;overflow:hidden;border-radius:12px;
   background:var(--clear);box-shadow:inset 0 0 0 1px var(--stroke);text-align:center;cursor:pointer;
   transform:translate(var(--x), -50%) scale(calc(var(--s) * var(--h, 1)));
   transition:transform .6s var(--ease),opacity .6s var(--ease),box-shadow .4s;will-change:transform,opacity}
-.cp__logo{width:56px;height:56px;border-radius:8px;background:var(--clear);overflow:hidden;flex:none;transition:width .6s var(--ease),height .6s var(--ease),border-radius .6s var(--ease)}
+.cp__a,.cp__s{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;transition:opacity .45s var(--ease)}
+.cp__logo{flex:none;background:var(--clear);overflow:hidden}
 .cp__logo img{width:100%;height:100%;object-fit:contain}
-.cp__tw{width:100%;display:flex;justify-content:center}
-.cp__t{font-weight:500;font-size:12px;line-height:16px;color:#757880;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;transition:color .4s,font-size .6s var(--ease),line-height .6s var(--ease)}
-.cp{transition-property:transform,opacity,box-shadow,padding,gap}
-.cp:not(.is-active){justify-content:flex-start;padding:10px 20px;gap:5px}
-.cp:not(.is-active) .cp__logo{width:51px;height:51px;border-radius:15px}
-.cp:not(.is-active) .cp__t{font-size:12.7px;line-height:20.3px}
-.cp.is-active{box-shadow:var(--shadow);cursor:pointer}
-.cp.is-active .cp__t{color:#292a2e}
+.cp__t{width:100%;font-weight:500;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+/* активная: padding 16, gap 8, лого 56 r8, текст 12/16 #292A2E, лого + текст по центру */
+.cp__a{justify-content:center;gap:8px;padding:16px}
+.cp__a .cp__logo{width:56px;height:56px;border-radius:8px}
+.cp__a .cp__t{font-size:12px;line-height:16px;color:#292a2e}
+/* соседняя (в «160-х» единицах, после scale .7875 = макет): padding 8/16, gap 4, лого 40 r12, текст 10/16 #757880, сверху */
+.cp__s{justify-content:flex-start;gap:5.08px;padding:10.16px 20.32px}
+.cp__s .cp__logo{width:50.8px;height:50.8px;border-radius:15.24px}
+.cp__s .cp__t{font-size:12.7px;line-height:20.32px;color:#757880}
+/* сначала быстро гасим старую раскладку, потом проявляем новую — без двоения текста */
+.cp.is-active .cp__s,.cp:not(.is-active) .cp__a{opacity:0;transition:opacity .15s ease-out}
+.cp.is-active .cp__a,.cp:not(.is-active) .cp__s{opacity:1;transition:opacity .3s ease-out .15s}
+.cp.is-active{box-shadow:var(--shadow)}
 .cp.is-active:hover{--h:1.0375;transition:transform .3s ease-out,opacity .6s var(--ease),box-shadow .4s}
 .cp:not(.is-active):hover{opacity:.75!important}
 
@@ -130,8 +139,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let cur = 0, timer = null, paused = false;
 
-  stage.innerHTML = C.map(([l, t], i) =>
-    `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__tw"><span class="cp__t">${t}</span></span></div>`).join("");
+  stage.innerHTML = C.map(([l, t], i) => {
+      const in_ = `<span class="cp__logo"><img src="img/logos/${l}.png" alt=""></span><span class="cp__t">${t}</span>`;
+      return `<div class="cp" data-i="${i}" role="group" aria-label="${t}"><div class="cp__a">${in_}</div><div class="cp__s" aria-hidden="true">${in_}</div></div>`; }).join("");
   const cards = [...stage.children];
 
   // позиция по смещению от активной: [x, scale, opacity, z]. Сцена 256: активная 160 по центру (x 48),
